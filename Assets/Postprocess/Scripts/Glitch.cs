@@ -15,7 +15,7 @@ public class Glitch : VolumeComponent, IPostProcessComponent
     public FloatParameter Speed = new FloatParameter(0.5f); 
  
     [Range(0.0f, 10.0f)] 
-    public FloatParameter Amount = new FloatParameter(1f); 
+    public FloatParameter Amount = new FloatParameter(0f); 
  
     [Range(0.0f, 50.0f)] 
     public FloatParameter BlockLayer1_U = new FloatParameter(9f); 

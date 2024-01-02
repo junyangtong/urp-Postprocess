@@ -13,7 +13,20 @@ MonoBehaviour:
   m_Name: NewMyRendererFeature
   m_EditorClassIdentifier: 
   m_Active: 1
-  glitchImageBlockShader: {fileID: 4800000, guid: dddd206b09cc73c458e4fa6b190fe63f, type: 3}
+--- !u!114 &-2886165898550928094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e253977c009ef478bcb1d5939e1ddc, type: 3}
+  m_Name: NewTiltShiftBlurRendererFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  TiltShiftBlurShader: {fileID: 4800000, guid: 9af567802fdfc624eaf4c7c4ac613d91, type: 3}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28,8 +41,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_RendererFeatures:
   - {fileID: -5218353682123469560}
-  m_RendererFeatureMap: 08cdad60f9ae94b7
-  postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
+  - {fileID: -2886165898550928094}
+  m_RendererFeatureMap: 08cdad60f9ae94b7229d06266847f2d7
+  postProcessData: {fileID: 11400000, guid: 6026128783a95434981e70f72aa27b5b, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
   shaders:
     blitPS: {fileID: 4800000, guid: c17132b1f77d20942aa75f8429c0f8bc, type: 3}

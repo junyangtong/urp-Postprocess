@@ -52,6 +52,50 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 0
     min: 0
+--- !u!114 &-7794448709407261183
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0965cc6a3c0dcb4f83f1f7cba0aac92, type: 3}
+  m_Name: Glitch
+  m_EditorClassIdentifier: 
+  active: 0
+  m_AdvancedMode: 0
+  Fade:
+    m_OverrideState: 1
+    m_Value: 1
+  Speed:
+    m_OverrideState: 1
+    m_Value: 0.5
+  Amount:
+    m_OverrideState: 1
+    m_Value: 1
+  BlockLayer1_U:
+    m_OverrideState: 1
+    m_Value: 9
+  BlockLayer1_V:
+    m_OverrideState: 1
+    m_Value: 9
+  BlockLayer2_U:
+    m_OverrideState: 1
+    m_Value: 5
+  BlockLayer2_V:
+    m_OverrideState: 1
+    m_Value: 5
+  BlockLayer1_Indensity:
+    m_OverrideState: 0
+    m_Value: 8
+  BlockLayer2_Indensity:
+    m_OverrideState: 0
+    m_Value: 4
+  RGBSplitIndensity:
+    m_OverrideState: 0
+    m_Value: 0.5
 --- !u!114 &-7011558710299706105
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -88,7 +132,7 @@ MonoBehaviour:
   rounded:
     m_OverrideState: 0
     m_Value: 0
---- !u!114 &-3914263429120897571
+--- !u!114 &-4245013716212104717
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -97,41 +141,56 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0965cc6a3c0dcb4f83f1f7cba0aac92, type: 3}
-  m_Name: Glitch
+  m_Script: {fileID: 11500000, guid: e5d737218ce9b31499f2b3b425eecc2f, type: 3}
+  m_Name: TiltShiftBlur
   m_EditorClassIdentifier: 
   active: 1
   m_AdvancedMode: 0
-  Fade:
+  Offset:
+    m_OverrideState: 1
+    m_Value: 0.1
+  Area:
+    m_OverrideState: 1
+    m_Value: 1.1
+  Spread:
+    m_OverrideState: 1
+    m_Value: 1.89
+  BlurInt:
+    m_OverrideState: 1
+    m_Value: 0.025
+  BlurStep:
+    m_OverrideState: 1
+    m_Value: 10
+--- !u!114 &-46463343003875288
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29fa0085f50d5e54f8144f766051a691, type: 3}
+  m_Name: FilmGrain
+  m_EditorClassIdentifier: 
+  active: 0
+  m_AdvancedMode: 0
+  type:
+    m_OverrideState: 1
+    m_Value: 0
+  intensity:
+    m_OverrideState: 1
+    m_Value: 0.404
+    min: 0
+    max: 1
+  response:
+    m_OverrideState: 1
+    m_Value: 0
+    min: 0
+    max: 1
+  texture:
     m_OverrideState: 0
-    m_Value: 1
-  Speed:
-    m_OverrideState: 0
-    m_Value: 0.5
-  Amount:
-    m_OverrideState: 0
-    m_Value: 1
-  BlockLayer1_U:
-    m_OverrideState: 0
-    m_Value: 9
-  BlockLayer1_V:
-    m_OverrideState: 0
-    m_Value: 9
-  BlockLayer2_U:
-    m_OverrideState: 0
-    m_Value: 5
-  BlockLayer2_V:
-    m_OverrideState: 0
-    m_Value: 5
-  BlockLayer1_Indensity:
-    m_OverrideState: 0
-    m_Value: 8
-  BlockLayer2_Indensity:
-    m_OverrideState: 0
-    m_Value: 4
-  RGBSplitIndensity:
-    m_OverrideState: 0
-    m_Value: 0.5
+    m_Value: {fileID: 0}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,7 +207,10 @@ MonoBehaviour:
   - {fileID: 849379129802519247}
   - {fileID: -7893295128165547882}
   - {fileID: -7011558710299706105}
-  - {fileID: -3914263429120897571}
+  - {fileID: -7794448709407261183}
+  - {fileID: 7311241898648914117}
+  - {fileID: -46463343003875288}
+  - {fileID: -4245013716212104717}
 --- !u!114 &849379129802519247
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -190,3 +252,22 @@ MonoBehaviour:
     m_Value: 0
     min: -100
     max: 100
+--- !u!114 &7311241898648914117
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81180773991d8724ab7f2d216912b564, type: 3}
+  m_Name: ChromaticAberration
+  m_EditorClassIdentifier: 
+  active: 0
+  m_AdvancedMode: 0
+  intensity:
+    m_OverrideState: 1
+    m_Value: 1
+    min: 0
+    max: 1
