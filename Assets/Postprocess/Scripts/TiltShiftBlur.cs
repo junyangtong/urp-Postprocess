@@ -9,19 +9,20 @@ using UnityEngine.Rendering.Universal;
 public class TiltShiftBlur : VolumeComponent, IPostProcessComponent 
 { 
     [Range(0.0f, 1.0f)] 
-    public FloatParameter Offset = new FloatParameter(0.1f); 
+    public FloatParameter Offset = new ClampedFloatParameter(0f, -2f, 2f);
  
     [Range(0.0f, 5.0f)] 
-    public FloatParameter Area = new FloatParameter(1.5f); 
+    public FloatParameter Area = new ClampedFloatParameter(0f, 0f, 2f);
  
     [Range(0.0f, 1.0f)] 
-    public FloatParameter Spread = new FloatParameter(0.8f); 
+    public FloatParameter Spread = new ClampedFloatParameter(0f, 0f, 2f);
  
     [Range(0.0f, 50.0f)] 
-    public FloatParameter BlurInt = new FloatParameter(0f);
+    public FloatParameter BlurInt = new ClampedFloatParameter(0f, 0f, .3f);
 
     [Range(0.0f, 10.0f)] 
     public FloatParameter BlurStep = new FloatParameter(5f); 
+
  
     public bool IsActive() => BlurInt.value > 0f; 
  

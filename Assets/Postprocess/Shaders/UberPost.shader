@@ -3,6 +3,7 @@ Shader "UberPost"
     HLSLINCLUDE
         #pragma exclude_renderers gles
         #pragma multi_compile _ _GLITCH
+        #pragma multi_compile _ _TILTSHIFTBLUR
         #pragma multi_compile_local_fragment _ _DISTORTION
         #pragma multi_compile_local_fragment _ _CHROMATIC_ABERRATION
         #pragma multi_compile_local_fragment _ _BLOOM_LQ _BLOOM_HQ _BLOOM_LQ_DIRT _BLOOM_HQ_DIRT
@@ -16,6 +17,7 @@ Shader "UberPost"
         #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Filtering.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/Shaders/PostProcessing/Common.hlsl"
+        #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
 
         // Hardcoded dependencies to reduce the number of variants
         #if _BLOOM_LQ || _BLOOM_HQ || _BLOOM_LQ_DIRT || _BLOOM_HQ_DIRT
@@ -36,6 +38,8 @@ Shader "UberPost"
         half3 _Params;
         half4 _Params2;
         half3 _Params3;
+        half3 _TiltShiftBlurPassParams;
+        half2 _TiltShiftBlurPassParams2;
         float4 _Lut_Params;
         float4 _UserLut_Params;
         float4 _Bloom_Params;
@@ -64,6 +68,13 @@ Shader "UberPost"
         #define _RGBSplit_Indensity _Params3.x
         #define _BlockLayer1_Indensity _Params3.y
         #define _BlockLayer2_Indensity _Params3.z
+
+        #define _OffsetT _TiltShiftBlurPassParams.x
+        #define _Area _TiltShiftBlurPassParams.y
+        #define _Spread _TiltShiftBlurPassParams.z
+        #define _BlurInt _TiltShiftBlurPassParams2.y
+        #define _BlurStep _TiltShiftBlurPassParams2.x
+
         #define DistCenter              _Distortion_Params1.xy
         #define DistAxis                _Distortion_Params1.zw
         #define DistTheta               _Distortion_Params2.x
@@ -159,7 +170,38 @@ Shader "UberPost"
         float4 colorR = SAMPLE_TEXTURE2D(tex, sampler_tex, uv);
         return Glitch(colorR, tex, sampler_tex, uv);
         }
+        float TiltShiftMask(float2 uv)
+        {
+            float centerY = uv.y * 2.0 - 1.0 + _OffsetT; // [0,1] -> [-1,1]
+            return pow(abs(centerY * _Area), _Spread);
+        }
+        
+        float3 GaussianSample (Texture2D tex, SamplerState sampler_tex,float2 uv, float blurInt)
+            {
+                // 1 / 16
+                float offset = blurInt * 0.0625f;
 
+                // 左上
+                float4 color = SAMPLE_TEXTURE2D(tex, sampler_tex, float2(uv.x - offset,uv.y - offset)) * 0.0947416f;
+                // 上
+                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x,uv.y - offset)) * 0.118318f;
+                // 右上
+                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x + offset,uv.y + offset)) * 0.0947416f;
+                // 左
+                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x - offset,uv.y)) * 0.118318f;
+                // 中
+                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x,uv.y)) * 0.147761f;
+                // 右
+                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x + offset,uv.y)) * 0.118318f;
+                // 左下
+                color += SAMPLE_TEXTURE2D(tex, sampler_tex, float2(uv.x - offset,uv.y + offset)) * 0.0947416f;
+                // 下
+                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x,uv.y + offset)) * 0.118318f;
+                // 右下
+                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x + offset,uv.y - offset)) * 0.0947416f;
+
+                return color.rgb;
+            }
 
         half4 Frag(Varyings input) : SV_Target
         {
@@ -198,6 +240,22 @@ Shader "UberPost"
             }
             #endif
 
+            #if _TILTSHIFTBLUR
+            {   
+                float mask = min(TiltShiftMask(uvDistorted),1.);
+                float3 src = SAMPLE_TEXTURE2D(_SourceTex, sampler_LinearClamp, uvDistorted).rgb;
+                float3 dest;
+                float sum = _BlurStep;
+                float blurInt = _BlurInt;
+                for(int i= 1;i<sum;i++){ 
+                    blurInt -= blurInt/sum;
+                    float3 tempdest = GaussianSample(_SourceTex,sampler_LinearClamp,uvDistorted,blurInt);
+                    dest += tempdest;
+                } 
+                color = lerp(src,dest/sum,mask);
+            }
+            #endif
+
             // Gamma space... Just do the rest of Uber in linear and convert back to sRGB at the end
             #if UNITY_COLORSPACE_GAMMA
             {
@@ -206,7 +264,7 @@ Shader "UberPost"
             #endif
         
             #if defined(BLOOM)
-            {
+            {   
                 #if _BLOOM_HQ && !defined(SHADER_API_GLES)
                 half4 bloom = SampleTexture2DBicubic(TEXTURE2D_X_ARGS(_Bloom_Texture, sampler_LinearClamp), uvDistorted, _Bloom_Texture_TexelSize.zwxy, (1.0).xx, unity_StereoEyeIndex);
                 #else
