@@ -38,7 +38,7 @@ Shader "UberPost"
         half3 _Params;
         half4 _Params2;
         half3 _Params3;
-        half3 _TiltShiftBlurPassParams;
+        half2 _TiltShiftBlurPassParams;
         half2 _TiltShiftBlurPassParams2;
         float4 _Lut_Params;
         float4 _UserLut_Params;
@@ -71,9 +71,8 @@ Shader "UberPost"
 
         #define _OffsetT _TiltShiftBlurPassParams.x
         #define _Area _TiltShiftBlurPassParams.y
-        #define _Spread _TiltShiftBlurPassParams.z
+        #define _Spread _TiltShiftBlurPassParams2.x
         #define _BlurInt _TiltShiftBlurPassParams2.y
-        #define _BlurStep _TiltShiftBlurPassParams2.x
 
         #define DistCenter              _Distortion_Params1.xy
         #define DistAxis                _Distortion_Params1.zw
@@ -175,33 +174,31 @@ Shader "UberPost"
             float centerY = uv.y * 2.0 - 1.0 + _OffsetT; // [0,1] -> [-1,1]
             return pow(abs(centerY * _Area), _Spread);
         }
-        
-        float3 GaussianSample (Texture2D tex, SamplerState sampler_tex,float2 uv, float blurInt)
-            {
-                // 1 / 16
-                float offset = blurInt * 0.0625f;
+            //===================================================================
+            // 16x acceleration of https://www.shadertoy.com/view/4tSyzy
+            // by applying gaussian at intermediate MIPmap level.
+            static const int samples = 35,
+                    LOD = 2,         // gaussian done on MIPmap at scale LOD
+                    sLOD = 1 << LOD;
+            static const float sigma = float(samples) * .25;
 
-                // 左上
-                float4 color = SAMPLE_TEXTURE2D(tex, sampler_tex, float2(uv.x - offset,uv.y - offset)) * 0.0947416f;
-                // 上
-                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x,uv.y - offset)) * 0.118318f;
-                // 右上
-                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x + offset,uv.y + offset)) * 0.0947416f;
-                // 左
-                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x - offset,uv.y)) * 0.118318f;
-                // 中
-                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x,uv.y)) * 0.147761f;
-                // 右
-                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x + offset,uv.y)) * 0.118318f;
-                // 左下
-                color += SAMPLE_TEXTURE2D(tex, sampler_tex, float2(uv.x - offset,uv.y + offset)) * 0.0947416f;
-                // 下
-                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x,uv.y + offset)) * 0.118318f;
-                // 右下
-                color += SAMPLE_TEXTURE2D(tex, sampler_tex,float2(uv.x + offset,uv.y - offset)) * 0.0947416f;
-
-                return color.rgb;
+            float gaussian(float2 i) {
+                return exp( -.5* dot(i/=sigma,i) ) / ( 6.28 * sigma*sigma );
             }
+
+            float3 blur(Texture2D sp, SamplerState sampler_tex, float2 U, float2 scale) {
+                float4 O = 0.;  
+                int s = samples/sLOD;
+                
+                for ( int i = 0; i < s*s; i++ ) {
+                    float2 d = float2(i%s, i/s)*float(sLOD) - float(samples)/2.;
+                    O += gaussian(d) * SAMPLE_TEXTURE2D_LOD(sp, sampler_tex, U + scale * d, float(LOD));
+                }
+                
+                return (O / O.a).rgb;
+            }
+
+            //====================================================================
 
         half4 Frag(Varyings input) : SV_Target
         {
@@ -245,14 +242,9 @@ Shader "UberPost"
                 float mask = min(TiltShiftMask(uvDistorted),1.);
                 float3 src = SAMPLE_TEXTURE2D(_SourceTex, sampler_LinearClamp, uvDistorted).rgb;
                 float3 dest;
-                float sum = _BlurStep;
-                float blurInt = _BlurInt;
-                for(int i= 1;i<sum;i++){ 
-                    blurInt -= blurInt/sum;
-                    float3 tempdest = GaussianSample(_SourceTex,sampler_LinearClamp,uvDistorted,blurInt);
-                    dest += tempdest;
-                } 
-                color = lerp(src,dest/sum,mask);
+                float blurInt = _BlurInt * 0.0525f;
+                dest = blur(_SourceTex,sampler_LinearClamp,uvDistorted,blurInt);
+                color = lerp(src,dest,mask);
             }
             #endif
 

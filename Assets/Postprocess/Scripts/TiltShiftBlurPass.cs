@@ -57,8 +57,8 @@ public class TiltShiftBlurPass : ScriptableRenderPass
         {
             //将参数设置到uniform变量
             //cmd.SetGlobalTexture("_MainTex", m_Source);
-            cmd.SetGlobalVector(ShaderIDs.TiltShiftBlurPassParams, new Vector3(m_TiltShiftBlur.Offset.value, m_TiltShiftBlur.Area.value, m_TiltShiftBlur.Spread.value));
-            cmd.SetGlobalVector(ShaderIDs.TiltShiftBlurPassParams2, new Vector2(m_TiltShiftBlur.BlurStep.value,m_TiltShiftBlur.BlurInt.value));
+            cmd.SetGlobalVector(ShaderIDs.TiltShiftBlurPassParams, new Vector2(m_TiltShiftBlur.Offset.value, m_TiltShiftBlur.Area.value));
+            cmd.SetGlobalVector(ShaderIDs.TiltShiftBlurPassParams2, new Vector2( m_TiltShiftBlur.Spread.value,m_TiltShiftBlur.BlurInt.value));
             // 开启故障宏
             cmd.EnableShaderKeyword("_TILTSHIFTBLUR");}
         else

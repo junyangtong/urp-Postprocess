@@ -148,19 +148,16 @@ MonoBehaviour:
   m_AdvancedMode: 0
   Offset:
     m_OverrideState: 1
-    m_Value: 0.14
+    m_Value: 0.18
   Area:
     m_OverrideState: 1
-    m_Value: 1.37
+    m_Value: 5
   Spread:
     m_OverrideState: 1
-    m_Value: 0.95
+    m_Value: 2
   BlurInt:
     m_OverrideState: 1
-    m_Value: 0.157
-  BlurStep:
-    m_OverrideState: 1
-    m_Value: 10
+    m_Value: 0.004
 --- !u!114 &-46463343003875288
 MonoBehaviour:
   m_ObjectHideFlags: 3
