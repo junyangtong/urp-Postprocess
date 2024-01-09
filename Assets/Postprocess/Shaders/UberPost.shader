@@ -177,7 +177,7 @@ Shader "UberPost"
             //===================================================================
             // 16x acceleration of https://www.shadertoy.com/view/4tSyzy
             // by applying gaussian at intermediate MIPmap level.
-            static const int samples = 35,
+            static const int samples = 50+floor(_BlurInt),
                     LOD = 2,         // gaussian done on MIPmap at scale LOD
                     sLOD = 1 << LOD;
             static const float sigma = float(samples) * .25;
@@ -242,8 +242,8 @@ Shader "UberPost"
                 float mask = min(TiltShiftMask(uvDistorted),1.);
                 float3 src = SAMPLE_TEXTURE2D(_SourceTex, sampler_LinearClamp, uvDistorted).rgb;
                 float3 dest;
-                float blurInt = _BlurInt * 0.0525f;
-                dest = blur(_SourceTex,sampler_LinearClamp,uvDistorted,blurInt);
+                //float blurInt = _BlurInt * 0.0525f;
+                dest = blur(_SourceTex,sampler_LinearClamp,uvDistorted,float2(0.0004,0.0004));
                 color = lerp(src,dest,mask);
             }
             #endif
